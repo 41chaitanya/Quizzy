@@ -1,7 +1,7 @@
 
 
 export const handleRegister = async(req, res)=>{
-    const {} = req.body;
+    const {fullname, email, password} = req.body;
     try {
         
     } catch (error) {

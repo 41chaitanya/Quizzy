@@ -11,7 +11,6 @@ class Database {
       );
 
       this.registerEvents();
-
     } catch (error) {
       console.error('Database connection failed:', error.message);
       process.exit(1);

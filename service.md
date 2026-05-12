@@ -1,6 +1,21 @@
 Service	Responsibility
 
 
+auth-service/
+ ├── src/
+ │    ├── config/
+ │    ├── controllers/
+ │    ├── middlewares/
+ │    ├── models/
+ │    ├── routes/
+ │    ├── services/
+ │    ├── utils/
+ │    ├── app.js
+ │    └── server.js
+ │
+ ├── .env
+ ├── .gitignore
+ ├── package.json
 
 Auth Service ----> 	Login, 
 , RBAC

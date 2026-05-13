@@ -2,40 +2,37 @@ import { createUser, findUserByEmail } from "../dao/user.dao.js";
 import bcrypt from "bcrypt";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.utils.js";
 
-export async function registerUser({ username, email, password,}) {
-
-
-  
-  // Check if user already exists using email
+export async function registerUser({ username, email, password }) {
+  // Check if the email is already registered
   const user = await findUserByEmail(email);
 
-  // If user found, throw error
   if (user) {
     throw new Error("User already exists");
   }
 
-  // Convert plain password into hashed password
-  // 10 = salt rounds
+  // Hash the plain text password before saving
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Create new user object
   const newUserData = {
     username,
     email,
     password: hashedPassword,
   };
 
-  // Save user into database
+  // Create a new user record in the database
   const newUser = await createUser(newUserData);
 
+  // Create JWT tokens for the new user
   const accessToken = generateAccessToken(newUser);
   const refreshToken = generateRefreshToken(newUser);
 
+  // refresh token DB me save
+  newUser.refreshToken = refreshToken;
+  await newUser.save();
 
-  // Return created user
   return {
     user: newUser,
     accessToken,
-    refreshToken
-  }
+    refreshToken,
+  };
 }

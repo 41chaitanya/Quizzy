@@ -1,8 +1,10 @@
 import dotenv from "dotenv";
+
 dotenv.config();
 
+// Validate required environment variables before application startup
 if (!process.env.PORT) {
-  console.error("PORT si not defined in environment variables");
+  console.error("PORT is not defined in environment variables");
   process.exit(1);
 }
 
@@ -10,15 +12,17 @@ if (!process.env.MONGO_URI) {
   console.error("MONGO_URI is not defined in environment variables");
   process.exit(1);
 }
+
 if (!process.env.ACCESS_TOKEN_SECRET || !process.env.ACCESS_TOKEN_EXPIRE) {
   console.error(
-    "ACCESS_TOKEN_SECRET and ACCESS_TOKEN_EXPIRE is not defined in environment variables",
+    "ACCESS_TOKEN_SECRET and ACCESS_TOKEN_EXPIRE are not defined in environment variables",
   );
-  process.exit(1)
+  process.exit(1);
 }
+
 if (!process.env.REFRESH_TOKEN_SECRET || !process.env.REFRESH_TOKEN_EXPIRE) {
   console.error(
-    "REFRESH_TOKEN_SECRET and REFRESH_TOKEN_EXPIRE is not defined in environment variables",
+    "REFRESH_TOKEN_SECRET and REFRESH_TOKEN_EXPIRE are not defined in environment variables",
   );
   process.exit(1);
 }

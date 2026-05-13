@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Define the user schema for authentication and role management
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -7,14 +8,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
     },
-
     password: {
       type: String,
       required: true,

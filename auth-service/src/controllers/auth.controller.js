@@ -1,7 +1,9 @@
 import { registerUser } from "../services/auth.service.js";
 
+// Controller to handle user registration requests
 export async function registerController(req, res) {
   try {
+    // Normalize and validate incoming fields
     const username = req.body.username?.trim();
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
@@ -13,7 +15,8 @@ export async function registerController(req, res) {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     if (username.length < 3) {
       return res.status(400).json({
@@ -21,6 +24,7 @@ export async function registerController(req, res) {
         message: "Username must be at least 3 characters",
       });
     }
+    
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
@@ -35,12 +39,15 @@ export async function registerController(req, res) {
           "Password must be at least 8 characters and include uppercase, lowercase, number and special character",
       });
     }
+
+    // Register the user and generate tokens
     const { user, accessToken, refreshToken } = await registerUser({
       username,
       email,
       password,
     });
 
+    // Set refresh token cookie for future refresh requests
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -48,6 +55,8 @@ export async function registerController(req, res) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
+
+    
 
     return res.status(201).json({
       success: true,
@@ -65,6 +74,7 @@ export async function registerController(req, res) {
         message: error.message,
       });
     }
+
     return res.status(500).json({
       success: false,
       message: "Registration failed",

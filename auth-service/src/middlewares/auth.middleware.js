@@ -1,11 +1,13 @@
 const { verifyToken } = require("../utils/jwt");
+const { isTokenBlacklisted } = require("../services/blacklist.service");
 const logger = require("../utils/logger");
 
 /**
  * Middleware: Authenticate request via Bearer token in Authorization header
+ * Checks if token is blacklisted (logged out) before allowing access
  * Attaches decoded user (id, name, username, role) to req.user
  */
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
 
@@ -24,6 +26,15 @@ const authenticate = (req, res, next) => {
 
     const decoded = verifyToken(token);
 
+    // Check if token has been blacklisted (user logged out)
+    const blacklisted = await isTokenBlacklisted(decoded);
+    if (blacklisted) {
+      return res.status(401).json({
+        success: false,
+        message: "Token has been invalidated. Please log in again.",
+      });
+    }
+
     // Attach user details from token to request
     req.user = {
       id: decoded.id,
@@ -31,6 +42,9 @@ const authenticate = (req, res, next) => {
       username: decoded.username,
       role: decoded.role,
     };
+
+    // Store raw token for potential logout use
+    req.token = token;
 
     next();
   } catch (err) {

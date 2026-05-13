@@ -34,6 +34,7 @@ Authentication microservice for the Quizzy platform. Handles user registration w
 | **RBAC** | Role-based access control middleware (`student`, `teacher`, `admin`) |
 | **Password Management** | Forgot/reset via OTP, change password (authenticated) |
 | **bcrypt Hashing** | Password hashing with 12 salt rounds via Mongoose `pre('save')` hook |
+| **Token Blacklisting** | Logout invalidates JWT; blacklisted tokens rejected on all protected routes |
 | **Logging** | Winston (application) + Morgan (HTTP requests) |
 | **Graceful Fallback** | Works without Redis using in-memory store for local dev |
 
@@ -82,6 +83,7 @@ auth-service/
     │
     ├── services/
     │   ├── auth.service.js            # Business logic — register, login, password flows
+    │   ├── blacklist.service.js       # Token blacklisting — logout invalidation
     │   └── otp.service.js             # OTP generation, email sending, verification, pending storage
     │
     ├── middlewares/
@@ -333,6 +335,19 @@ Returns JWT **in response headers**.
 
 > Requires `Authorization: Bearer <token>` in request headers
 
+#### `POST /logout` — Logout (Blacklist Token)
+Invalidates the current JWT token. Once logged out, the token cannot be used again.
+
+```json
+// Response 200
+{ "success": true, "message": "Logged out successfully. Token has been invalidated." }
+```
+
+> After logout, using the same token on any protected route returns:
+> `{ "success": false, "message": "Token has been invalidated. Please log in again." }`
+
+---
+
 #### `GET /me` — Get My Profile
 
 ```json
@@ -350,7 +365,7 @@ Returns JWT **in response headers**.
 ---
 
 #### `POST /change-password` — Change Password (Authenticated)
-Returns a **fresh JWT token** in response headers.
+**Blacklists old token**, returns a **fresh JWT token** in response headers.
 
 ```json
 // Request
@@ -413,6 +428,15 @@ router.post("/create-quiz", authenticate, authorize("teacher", "admin"), handler
 ```
 
 Available roles: `student`, `teacher`, `admin`
+
+### Token Blacklisting
+
+When a user **logs out** or **changes password**, the current token is blacklisted:
+
+- Blacklisted tokens are stored in Redis/memory with a key `bl:token:{userId}:{issuedAt}`
+- TTL is set to the token's **remaining lifetime** (auto-cleanup when token would have expired anyway)
+- On every protected request, `auth.middleware.js` checks the blacklist **before** granting access
+- `POST /change-password` blacklists the old token and issues a fresh one
 
 ---
 

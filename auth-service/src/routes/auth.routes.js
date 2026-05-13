@@ -70,10 +70,13 @@ router.post(
 
 // ─── Protected Routes (require Bearer token in Authorization header) ──────────
 
+/** Logout → blacklists current token */
+router.post("/logout", authenticate, authController.logout);
+
 /** Get my profile */
 router.get("/me", authenticate, authController.getMe);
 
-/** Change password → returns fresh token in header */
+/** Change password → blacklists old token, returns fresh token in header */
 router.post(
   "/change-password",
   authenticate,

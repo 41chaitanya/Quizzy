@@ -1,4 +1,5 @@
 const authService = require("../services/auth.service");
+const { blacklistToken } = require("../services/blacklist.service");
 const logger = require("../utils/logger");
 
 // Helper to wrap async controllers
@@ -62,6 +63,20 @@ const login = asyncHandler(async (req, res) => {
 });
 
 /**
+ * POST /api/auth/logout
+ * Protected. Blacklists the current JWT token.
+ */
+const logout = asyncHandler(async (req, res) => {
+  await blacklistToken(req.token);
+
+  logger.info(`User logged out: ${req.user.username}`);
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully. Token has been invalidated.",
+  });
+});
+
+/**
  * POST /api/auth/forgot-password
  */
 const forgotPassword = asyncHandler(async (req, res) => {
@@ -79,10 +94,13 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 /**
  * POST /api/auth/change-password
- * Protected → return fresh token in header
+ * Protected → blacklists old token, returns fresh token in header
  */
 const changePassword = asyncHandler(async (req, res) => {
   const result = await authService.changePassword(req.user.id, req.body);
+
+  // Blacklist the old token
+  await blacklistToken(req.token);
 
   // Set fresh token in response header
   res.setHeader("Authorization", `Bearer ${result.token}`);
@@ -132,6 +150,7 @@ module.exports = {
   verifyAndRegister,
   resendRegistrationOtp,
   login,
+  logout,
   forgotPassword,
   resetPassword,
   changePassword,

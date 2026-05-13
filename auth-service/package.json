@@ -11,7 +11,7 @@
   "keywords": ["auth", "jwt", "otp", "quizzy"],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",

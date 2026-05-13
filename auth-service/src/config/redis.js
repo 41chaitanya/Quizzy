@@ -1,4 +1,4 @@
-const logger = require("../utils/logger");
+import logger from "../utils/logger.js";
 
 /**
  * In-memory store that mimics Redis API for dev environments
@@ -75,7 +75,7 @@ let redis = null;
  * Connect to Redis using REDIS_HOST/PORT/PASSWORD or REDIS_URL
  * Falls back to in-memory store if not available
  */
-const connectRedis = () => {
+const connectRedis = async () => {
   const host = process.env.REDIS_HOST;
   const port = process.env.REDIS_PORT;
   const password = process.env.REDIS_PASSWORD;
@@ -85,7 +85,7 @@ const connectRedis = () => {
 
   if (hasRedisConfig) {
     try {
-      const Redis = require("ioredis");
+      const { default: Redis } = await import("ioredis");
 
       if (url && url.trim()) {
         redis = new Redis(url, { maxRetriesPerRequest: 3 });
@@ -98,7 +98,7 @@ const connectRedis = () => {
           retryStrategy(times) {
             if (times > 5) {
               logger.warn("Redis max retries reached — falling back to in-memory store");
-              return null; // stop retrying
+              return null;
             }
             return Math.min(times * 200, 2000);
           },
@@ -142,4 +142,4 @@ const getRedis = () => {
   return redis;
 };
 
-module.exports = { connectRedis, getRedis };
+export { connectRedis, getRedis };

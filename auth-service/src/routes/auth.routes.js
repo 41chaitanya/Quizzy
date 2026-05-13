@@ -1,11 +1,9 @@
-const express = require("express");
-const router = express.Router();
-
-const authController = require("../controllers/auth.controller");
-const { authenticate } = require("../middlewares/auth.middleware");
-const { authLimiter, otpLimiter } = require("../middlewares/rateLimiter.middleware");
-const { validate } = require("../middlewares/validate.middleware");
-const {
+import { Router } from "express";
+import * as authController from "../controllers/auth.controller.js";
+import { authenticate } from "../middlewares/auth.middleware.js";
+import { authLimiter, otpLimiter } from "../middlewares/rateLimiter.middleware.js";
+import { validate } from "../middlewares/validate.middleware.js";
+import {
   registerSchema,
   loginSchema,
   sendOtpSchema,
@@ -13,7 +11,9 @@ const {
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
-} = require("../utils/validators");
+} from "../utils/validators.js";
+
+const router = Router();
 
 // ─── Public Routes ────────────────────────────────────────────────────────────
 
@@ -84,4 +84,4 @@ router.post(
   authController.changePassword
 );
 
-module.exports = router;
+export default router;

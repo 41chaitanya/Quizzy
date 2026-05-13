@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const SALT_ROUNDS = 12;
 
@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
-      select: false, // Don't include password in queries by default
+      select: false,
     },
     role: {
       type: String,
@@ -91,4 +91,4 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 const User = mongoose.model("User", userSchema);
-module.exports = User;
+export default User;

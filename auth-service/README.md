@@ -1,6 +1,6 @@
 # 🎯 Quizzy — Auth Service
 
-Authentication microservice for the Quizzy platform. Handles user registration with OTP-first verification, JWT authentication (token in headers), Redis-backed rate limiting, and password management.
+Authentication microservice for the Quizzy platform. Built with **ES Modules** (`import`/`export`). Handles user registration with OTP-first verification, JWT authentication (token in headers), Redis-backed rate limiting, token blacklisting, and password management.
 
 ---
 
@@ -68,7 +68,7 @@ auth-service/
 ├── package.json
 ├── README.md
 └── src/
-    ├── server.js                      # Entry point — connects MongoDB, Redis, starts Express
+    ├── server.js                      # Entry point — imports dotenv/config, connects DB, Redis, starts Express
     ├── app.js                         # Express app — CORS, Morgan, routes, error handlers
     │
     ├── config/
@@ -438,6 +438,18 @@ When a user **logs out** or **changes password**, the current token is blacklist
 - On every protected request, `auth.middleware.js` checks the blacklist **before** granting access
 - `POST /change-password` blacklists the old token and issues a fresh one
 
+```javascript
+// How blacklisting works internally
+import { blacklistToken, isTokenBlacklisted } from "./services/blacklist.service.js";
+
+// On logout / password change
+await blacklistToken(req.token);
+
+// On every protected request (auth middleware)
+const blacklisted = await isTokenBlacklisted(decoded);
+if (blacklisted) return res.status(401).json({ message: "Token has been invalidated." });
+```
+
 ---
 
 ## 🛡 Rate Limiting
@@ -492,6 +504,8 @@ userSchema.post("save", function (error, doc, next) {
   if (error.name === "MongoServerError" && error.code === 11000) { ... }
 });
 ```
+
+> **Module System:** This project uses ES Modules (`"type": "module"` in package.json). All files use `import`/`export` syntax instead of `require`/`module.exports`.
 
 ---
 

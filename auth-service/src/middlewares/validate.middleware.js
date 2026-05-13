@@ -1,12 +1,8 @@
-const { ZodError } = require("zod");
-
 /**
  * Middleware factory for Zod schema validation
  * Validates req.body against the provided schema
- *
- * @param {ZodSchema} schema - Zod schema to validate against
  */
-const validate = (schema) => (req, res, next) => {
+export const validate = (schema) => (req, res, next) => {
   const result = schema.safeParse(req.body);
 
   if (!result.success) {
@@ -22,9 +18,6 @@ const validate = (schema) => (req, res, next) => {
     });
   }
 
-  // Replace req.body with the parsed (and transformed) data
   req.body = result.data;
   next();
 };
-
-module.exports = { validate };

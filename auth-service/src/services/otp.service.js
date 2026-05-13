@@ -1,8 +1,8 @@
-const nodemailer = require("nodemailer");
-const { getRedis } = require("../config/redis");
-const logger = require("../utils/logger");
+import nodemailer from "nodemailer";
+import { getRedis } from "../config/redis.js";
+import logger from "../utils/logger.js";
 
-const OTP_EXPIRY = parseInt(process.env.OTP_EXPIRY_MINUTES || "5") * 60; // seconds
+const OTP_EXPIRY = parseInt(process.env.OTP_EXPIRY_MINUTES || "5") * 60;
 const OTP_LENGTH = parseInt(process.env.OTP_LENGTH || "6");
 
 // Create Gmail transporter
@@ -32,17 +32,14 @@ const pendingRegKey = (email) => `pending:register:${email}`;
 
 /**
  * Send OTP email and store in Redis/memory
- * @param {string} email - recipient email
- * @param {string} type - "register" | "reset"
  */
-const sendOtp = async (email, type = "register") => {
+export const sendOtp = async (email, type = "register") => {
   const redis = getRedis();
 
-  // Check attempt throttle: max 3 OTP sends per 10 minutes
   const attemptsKey = otpAttemptsKey(email, type);
   const attempts = await redis.incr(attemptsKey);
   if (attempts === 1) {
-    await redis.expire(attemptsKey, 600); // 10 min window
+    await redis.expire(attemptsKey, 600);
   }
   if (attempts > 3) {
     const ttl = await redis.ttl(attemptsKey);
@@ -54,11 +51,8 @@ const sendOtp = async (email, type = "register") => {
 
   const otp = generateOtp();
   const key = otpKey(email, type);
-
-  // Store OTP with expiry
   await redis.setex(key, OTP_EXPIRY, otp);
 
-  // Build email content
   const subject =
     type === "register"
       ? "Quizzy — Verify Your Email to Complete Registration"
@@ -92,11 +86,8 @@ const sendOtp = async (email, type = "register") => {
 
 /**
  * Verify OTP
- * @param {string} email
- * @param {string} otp
- * @param {string} type - "register" | "reset"
  */
-const verifyOtp = async (email, otp, type = "register") => {
+export const verifyOtp = async (email, otp, type = "register") => {
   const redis = getRedis();
   const key = otpKey(email, type);
 
@@ -110,7 +101,6 @@ const verifyOtp = async (email, otp, type = "register") => {
     throw { status: 400, message: "Invalid OTP. Please check and try again." };
   }
 
-  // Delete OTP after successful verification (single use)
   await redis.del(key);
   await redis.del(otpAttemptsKey(email, type));
 
@@ -121,7 +111,7 @@ const verifyOtp = async (email, otp, type = "register") => {
 /**
  * Store pending registration data temporarily
  */
-const storePendingRegistration = async (email, userData) => {
+export const storePendingRegistration = async (email, userData) => {
   const redis = getRedis();
   const key = pendingRegKey(email);
   await redis.setex(key, OTP_EXPIRY, JSON.stringify(userData));
@@ -131,7 +121,7 @@ const storePendingRegistration = async (email, userData) => {
 /**
  * Get and delete pending registration data
  */
-const getPendingRegistration = async (email) => {
+export const getPendingRegistration = async (email) => {
   const redis = getRedis();
   const key = pendingRegKey(email);
   const data = await redis.get(key);
@@ -141,5 +131,3 @@ const getPendingRegistration = async (email) => {
   await redis.del(key);
   return JSON.parse(data);
 };
-
-module.exports = { sendOtp, verifyOtp, storePendingRegistration, getPendingRegistration };

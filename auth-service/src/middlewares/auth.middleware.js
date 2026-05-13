@@ -1,13 +1,13 @@
-const { verifyToken } = require("../utils/jwt");
-const { isTokenBlacklisted } = require("../services/blacklist.service");
-const logger = require("../utils/logger");
+import { verifyToken } from "../utils/jwt.js";
+import { isTokenBlacklisted } from "../services/blacklist.service.js";
+import logger from "../utils/logger.js";
 
 /**
  * Middleware: Authenticate request via Bearer token in Authorization header
  * Checks if token is blacklisted (logged out) before allowing access
  * Attaches decoded user (id, name, username, role) to req.user
  */
-const authenticate = async (req, res, next) => {
+export const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
 
@@ -65,7 +65,7 @@ const authenticate = async (req, res, next) => {
  * Middleware: Role-based access control
  * Usage: authorize("admin") or authorize("admin", "teacher")
  */
-const authorize = (...roles) => {
+export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ success: false, message: "Not authenticated." });
@@ -80,5 +80,3 @@ const authorize = (...roles) => {
     next();
   };
 };
-
-module.exports = { authenticate, authorize };

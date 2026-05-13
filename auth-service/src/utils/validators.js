@@ -1,6 +1,6 @@
-const { z } = require("zod");
+import { z } from "zod";
 
-const registerSchema = z.object({
+export const registerSchema = z.object({
   name: z
     .string({ required_error: "Name is required" })
     .trim()
@@ -30,7 +30,7 @@ const registerSchema = z.object({
     .default("student"),
 });
 
-const loginSchema = z.object({
+export const loginSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
     .trim()
@@ -41,7 +41,7 @@ const loginSchema = z.object({
     .min(1, "Password is required"),
 });
 
-const sendOtpSchema = z.object({
+export const sendOtpSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
     .trim()
@@ -49,7 +49,7 @@ const sendOtpSchema = z.object({
     .transform((val) => val.toLowerCase()),
 });
 
-const verifyOtpSchema = z.object({
+export const verifyOtpSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
     .trim()
@@ -61,7 +61,7 @@ const verifyOtpSchema = z.object({
     .regex(/^\d{6}$/, "OTP must contain only digits"),
 });
 
-const forgotPasswordSchema = z.object({
+export const forgotPasswordSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
     .trim()
@@ -69,7 +69,7 @@ const forgotPasswordSchema = z.object({
     .transform((val) => val.toLowerCase()),
 });
 
-const resetPasswordSchema = z.object({
+export const resetPasswordSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
     .trim()
@@ -85,7 +85,7 @@ const resetPasswordSchema = z.object({
     .max(100, "Password must be at most 100 characters"),
 });
 
-const changePasswordSchema = z.object({
+export const changePasswordSchema = z.object({
   currentPassword: z
     .string({ required_error: "Current password is required" })
     .min(1, "Current password is required"),
@@ -94,13 +94,3 @@ const changePasswordSchema = z.object({
     .min(6, "New password must be at least 6 characters")
     .max(100, "New password must be at most 100 characters"),
 });
-
-module.exports = {
-  registerSchema,
-  loginSchema,
-  sendOtpSchema,
-  verifyOtpSchema,
-  forgotPasswordSchema,
-  resetPasswordSchema,
-  changePasswordSchema,
-};

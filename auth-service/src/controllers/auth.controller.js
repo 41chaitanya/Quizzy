@@ -1,6 +1,6 @@
-const authService = require("../services/auth.service");
-const { blacklistToken } = require("../services/blacklist.service");
-const logger = require("../utils/logger");
+import * as authService from "../services/auth.service.js";
+import { blacklistToken } from "../services/blacklist.service.js";
+import logger from "../utils/logger.js";
 
 // Helper to wrap async controllers
 const asyncHandler = (fn) => (req, res, next) =>
@@ -10,7 +10,7 @@ const asyncHandler = (fn) => (req, res, next) =>
  * POST /api/auth/register
  * Step 1: Validate → check duplicates → send OTP (user NOT saved yet)
  */
-const register = asyncHandler(async (req, res) => {
+export const register = asyncHandler(async (req, res) => {
   const result = await authService.register(req.body);
   res.status(200).json({ success: true, ...result });
 });
@@ -19,10 +19,9 @@ const register = asyncHandler(async (req, res) => {
  * POST /api/auth/verify-register
  * Step 2: Verify OTP → create user → return token in header
  */
-const verifyAndRegister = asyncHandler(async (req, res) => {
+export const verifyAndRegister = asyncHandler(async (req, res) => {
   const result = await authService.verifyAndRegister(req.body);
 
-  // Set token in response header
   res.setHeader("Authorization", `Bearer ${result.token}`);
   res.setHeader("X-Auth-Token", result.token);
 
@@ -38,7 +37,7 @@ const verifyAndRegister = asyncHandler(async (req, res) => {
  * POST /api/auth/resend-otp
  * Resend OTP for pending registration
  */
-const resendRegistrationOtp = asyncHandler(async (req, res) => {
+export const resendRegistrationOtp = asyncHandler(async (req, res) => {
   const result = await authService.resendRegistrationOtp(req.body);
   res.status(200).json({ success: true, ...result });
 });
@@ -47,10 +46,9 @@ const resendRegistrationOtp = asyncHandler(async (req, res) => {
  * POST /api/auth/login
  * Login → return token in header
  */
-const login = asyncHandler(async (req, res) => {
+export const login = asyncHandler(async (req, res) => {
   const result = await authService.login(req.body);
 
-  // Set token in response header
   res.setHeader("Authorization", `Bearer ${result.token}`);
   res.setHeader("X-Auth-Token", result.token);
 
@@ -66,7 +64,7 @@ const login = asyncHandler(async (req, res) => {
  * POST /api/auth/logout
  * Protected. Blacklists the current JWT token.
  */
-const logout = asyncHandler(async (req, res) => {
+export const logout = asyncHandler(async (req, res) => {
   await blacklistToken(req.token);
 
   logger.info(`User logged out: ${req.user.username}`);
@@ -79,7 +77,7 @@ const logout = asyncHandler(async (req, res) => {
 /**
  * POST /api/auth/forgot-password
  */
-const forgotPassword = asyncHandler(async (req, res) => {
+export const forgotPassword = asyncHandler(async (req, res) => {
   const result = await authService.forgotPassword(req.body);
   res.status(200).json({ success: true, ...result });
 });
@@ -87,7 +85,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 /**
  * POST /api/auth/reset-password
  */
-const resetPassword = asyncHandler(async (req, res) => {
+export const resetPassword = asyncHandler(async (req, res) => {
   const result = await authService.resetPassword(req.body);
   res.status(200).json({ success: true, ...result });
 });
@@ -96,13 +94,11 @@ const resetPassword = asyncHandler(async (req, res) => {
  * POST /api/auth/change-password
  * Protected → blacklists old token, returns fresh token in header
  */
-const changePassword = asyncHandler(async (req, res) => {
+export const changePassword = asyncHandler(async (req, res) => {
   const result = await authService.changePassword(req.user.id, req.body);
 
-  // Blacklist the old token
   await blacklistToken(req.token);
 
-  // Set fresh token in response header
   res.setHeader("Authorization", `Bearer ${result.token}`);
   res.setHeader("X-Auth-Token", result.token);
 
@@ -117,7 +113,7 @@ const changePassword = asyncHandler(async (req, res) => {
  * GET /api/auth/me
  * Protected → returns profile
  */
-const getMe = asyncHandler(async (req, res) => {
+export const getMe = asyncHandler(async (req, res) => {
   const user = await authService.getMe(req.user.id);
   res.status(200).json({
     success: true,
@@ -136,24 +132,11 @@ const getMe = asyncHandler(async (req, res) => {
 /**
  * GET /api/auth/health
  */
-const healthCheck = (req, res) => {
+export const healthCheck = (req, res) => {
   res.status(200).json({
     success: true,
     service: "auth-service",
     status: "healthy",
     timestamp: new Date().toISOString(),
   });
-};
-
-module.exports = {
-  register,
-  verifyAndRegister,
-  resendRegistrationOtp,
-  login,
-  logout,
-  forgotPassword,
-  resetPassword,
-  changePassword,
-  getMe,
-  healthCheck,
 };

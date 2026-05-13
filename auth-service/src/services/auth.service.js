@@ -1,23 +1,19 @@
-const User = require("../models/User");
-const { generateToken } = require("../utils/jwt");
-const { sendOtp, verifyOtp, storePendingRegistration, getPendingRegistration } = require("./otp.service");
-const logger = require("../utils/logger");
+import User from "../models/User.js";
+import { generateToken } from "../utils/jwt.js";
+import { sendOtp, verifyOtp, storePendingRegistration, getPendingRegistration } from "./otp.service.js";
+import logger from "../utils/logger.js";
 
 /**
  * Step 1: Validate data, check duplicates, send OTP (user NOT saved yet)
  */
-const register = async ({ name, username, email, password, role }) => {
-  // Check duplicates
+export const register = async ({ name, username, email, password, role }) => {
   const existingEmail = await User.findOne({ email });
   if (existingEmail) throw { status: 409, message: "Email is already registered." };
 
   const existingUsername = await User.findOne({ username });
   if (existingUsername) throw { status: 409, message: "Username is already taken." };
 
-  // Store pending registration data temporarily (NOT in DB)
   await storePendingRegistration(email, { name, username, email, password, role });
-
-  // Send OTP to email
   await sendOtp(email, "register");
 
   logger.info(`Registration OTP sent to: ${email}`);
@@ -28,23 +24,19 @@ const register = async ({ name, username, email, password, role }) => {
 };
 
 /**
- * Step 2: Verify OTP → Create user in DB → Return token in header
+ * Step 2: Verify OTP → Create user in DB → Return token
  */
-const verifyAndRegister = async ({ email, otp }) => {
-  // Verify OTP first
+export const verifyAndRegister = async ({ email, otp }) => {
   await verifyOtp(email, otp, "register");
 
-  // Get pending registration data
   const userData = await getPendingRegistration(email);
 
-  // Double-check duplicates (race condition safety)
   const existingEmail = await User.findOne({ email: userData.email });
   if (existingEmail) throw { status: 409, message: "Email is already registered." };
 
   const existingUsername = await User.findOne({ username: userData.username });
   if (existingUsername) throw { status: 409, message: "Username is already taken." };
 
-  // Now create the user in DB (email already verified)
   const user = await User.create({
     name: userData.name,
     username: userData.username,
@@ -67,19 +59,18 @@ const verifyAndRegister = async ({ email, otp }) => {
 /**
  * Resend OTP for pending registration
  */
-const resendRegistrationOtp = async ({ email }) => {
-  // Check if there's a pending registration
-  const User_ = await User.findOne({ email });
-  if (User_) throw { status: 400, message: "This email is already registered. Please login." };
+export const resendRegistrationOtp = async ({ email }) => {
+  const existingUser = await User.findOne({ email });
+  if (existingUser) throw { status: 400, message: "This email is already registered. Please login." };
 
   await sendOtp(email, "register");
   return { message: "OTP resent. Please check your email." };
 };
 
 /**
- * Login with email & password → Return token in header
+ * Login with email & password
  */
-const login = async ({ email, password }) => {
+export const login = async ({ email, password }) => {
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) throw { status: 401, message: "Invalid email or password." };
@@ -102,7 +93,7 @@ const login = async ({ email, password }) => {
 /**
  * Send OTP for password reset
  */
-const forgotPassword = async ({ email }) => {
+export const forgotPassword = async ({ email }) => {
   const user = await User.findOne({ email });
   if (!user) throw { status: 404, message: "No account found with this email." };
 
@@ -114,7 +105,7 @@ const forgotPassword = async ({ email }) => {
 /**
  * Reset password after OTP verification
  */
-const resetPassword = async ({ email, otp, newPassword }) => {
+export const resetPassword = async ({ email, otp, newPassword }) => {
   await verifyOtp(email, otp, "reset");
 
   const user = await User.findOne({ email });
@@ -128,9 +119,9 @@ const resetPassword = async ({ email, otp, newPassword }) => {
 };
 
 /**
- * Change password (authenticated) → Return new token in header
+ * Change password (authenticated)
  */
-const changePassword = async (userId, { currentPassword, newPassword }) => {
+export const changePassword = async (userId, { currentPassword, newPassword }) => {
   const user = await User.findById(userId).select("+password");
   if (!user) throw { status: 404, message: "User not found." };
 
@@ -140,7 +131,6 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
   user.password = newPassword;
   await user.save();
 
-  // Generate fresh token after password change
   const token = generateToken(user);
 
   logger.info(`Password changed for user: ${userId}`);
@@ -150,19 +140,8 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
 /**
  * Get current user profile
  */
-const getMe = async (userId) => {
+export const getMe = async (userId) => {
   const user = await User.findById(userId);
   if (!user) throw { status: 404, message: "User not found." };
   return user;
-};
-
-module.exports = {
-  register,
-  verifyAndRegister,
-  resendRegistrationOtp,
-  login,
-  forgotPassword,
-  resetPassword,
-  changePassword,
-  getMe,
 };

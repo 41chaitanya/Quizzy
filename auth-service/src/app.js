@@ -1,10 +1,10 @@
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
-const { globalLimiter } = require("./middlewares/rateLimiter.middleware");
-const authRoutes = require("./routes/auth.routes");
-const { errorHandler, notFound } = require("./middlewares/error.middleware");
-const logger = require("./utils/logger");
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
+import authRoutes from "./routes/auth.routes.js";
+import { errorHandler, notFound } from "./middlewares/error.middleware.js";
+import logger from "./utils/logger.js";
 
 const app = express();
 
@@ -49,4 +49,4 @@ app.get("/", (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

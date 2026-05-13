@@ -1,14 +1,8 @@
-const { getRedis } = require("../config/redis");
-const logger = require("../utils/logger");
+import { getRedis } from "../config/redis.js";
+import logger from "../utils/logger.js";
 
 /**
  * Redis-backed rate limiter middleware factory
- *
- * @param {Object} options
- * @param {number} options.windowMs  - Time window in milliseconds
- * @param {number} options.max       - Max requests in window
- * @param {string} options.keyPrefix - Unique key prefix for this limiter
- * @param {string} options.message   - Error message when limit exceeded
  */
 const createRateLimiter = ({
   windowMs = 15 * 60 * 1000,
@@ -31,7 +25,6 @@ const createRateLimiter = ({
 
       const ttl = await redis.ttl(key);
 
-      // Set rate limit headers
       res.setHeader("X-RateLimit-Limit", max);
       res.setHeader("X-RateLimit-Remaining", Math.max(0, max - current));
       res.setHeader("X-RateLimit-Reset", Date.now() + ttl * 1000);
@@ -47,17 +40,14 @@ const createRateLimiter = ({
 
       next();
     } catch (err) {
-      // If Redis fails, allow the request (fail open)
       logger.error(`Rate limiter error: ${err.message}`);
       next();
     }
   };
 };
 
-// Pre-configured rate limiters for different routes
-
 /** Global API limiter: 100 req / 15 min */
-const globalLimiter = createRateLimiter({
+export const globalLimiter = createRateLimiter({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"),
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
   keyPrefix: "rl:global",
@@ -65,7 +55,7 @@ const globalLimiter = createRateLimiter({
 });
 
 /** Auth limiter (login/register): 10 req / 15 min */
-const authLimiter = createRateLimiter({
+export const authLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: 10,
   keyPrefix: "rl:auth",
@@ -73,11 +63,11 @@ const authLimiter = createRateLimiter({
 });
 
 /** OTP limiter: 5 req / 10 min */
-const otpLimiter = createRateLimiter({
+export const otpLimiter = createRateLimiter({
   windowMs: 10 * 60 * 1000,
   max: 5,
   keyPrefix: "rl:otp",
   message: "Too many OTP requests. Please wait 10 minutes before trying again.",
 });
 
-module.exports = { globalLimiter, authLimiter, otpLimiter, createRateLimiter };
+export { createRateLimiter };

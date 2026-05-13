@@ -4,6 +4,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/generateToken.utils.js";
+import userModel from "../models/user.model.js";
 
 export async function registerUser({ username, email, password }) {
   // Check if the email is already registered
@@ -56,7 +57,7 @@ export async function loginUser({ email, password }) {
   if (!isPasswordMatch) {
     throw new Error("Invalid email or password");
   }
-  
+
   // Create JWT tokens for the new user
   const accessToken = generateAccessToken(existingUser);
   const refreshToken = generateRefreshToken(existingUser);
@@ -74,4 +75,18 @@ export async function loginUser({ email, password }) {
     accessToken,
     refreshToken,
   };
+}
+
+
+export async function logoutUser(refreshToken) {
+  const user = await userModel.findOne({ refreshToken });
+
+  if (!user) {
+    throw new Error("Invalid refresh token");
+  }
+
+  user.refreshToken = null;
+  await user.save();
+
+  return true;
 }

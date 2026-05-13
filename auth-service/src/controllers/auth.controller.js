@@ -1,4 +1,8 @@
-import { loginUser, registerUser } from "../services/auth.service.js";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "../services/auth.service.js";
 
 // Controller to handle user registration requests
 export async function registerController(req, res) {
@@ -140,3 +144,36 @@ export async function loginController(req, res) {
     });
   }
 }
+
+export async function logoutController(req, res) {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token not found",
+      });
+    }
+
+    await logoutUser(refreshToken);
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Logout failed",
+      error: error.message,
+    });
+  }
+};

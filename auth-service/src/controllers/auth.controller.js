@@ -1,4 +1,5 @@
 import {
+  getProfile,
   loginUser,
   logoutUser,
   registerUser,
@@ -144,6 +145,28 @@ export async function loginController(req, res) {
     });
   }
 }
+
+export async function getProfileController(req, res) {
+  try {
+    console.log(req.user);
+    const userId = req.user.id;
+    
+    const user = await getProfile(userId);
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch profile",
+      error: error.message,
+    });
+  }
+}
+
+
 
 export async function logoutController(req, res) {
   try {

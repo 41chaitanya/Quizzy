@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail } from "../dao/user.dao.js";
+import { createUser, findUserByEmail, findUserById } from "../dao/user.dao.js";
 import bcrypt from "bcrypt";
 import {
   generateAccessToken,
@@ -90,4 +90,12 @@ export async function logoutUser(refreshToken) {
   return true;
 }
 
+
+export async function getProfile(userId) {
+  const user = await findUserById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
+}
 

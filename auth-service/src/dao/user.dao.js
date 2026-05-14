@@ -2,7 +2,7 @@ import userModel from "../models/user.model.js";
 
 // Find a single user by email address
 export async function findUserByEmail(email) {
-    const userData =  await userModel.findOne({ email });
+    const userData =  await userModel.findOne({ email }).select("+password");
     return userData;
 }
 
@@ -10,4 +10,9 @@ export async function findUserByEmail(email) {
 export async function createUser(user) {
    const newUser = await userModel.create(user);
     return newUser;
+}
+
+export async function findUserById(id) {
+    const userFatch = await userModel.findById(id).select("-password");
+    return userFatch
 }

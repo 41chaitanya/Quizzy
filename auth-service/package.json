@@ -2,23 +2,39 @@
   "name": "auth-service",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/server.js",
   "scripts": {
+<<<<<<< HEAD
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/server.js"
+=======
+    "start": "node ./src/server.js",
+    "dev": "nodemon ./src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+>>>>>>> upstream/main
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+<<<<<<< HEAD
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
+=======
+    "bcryptjs": "^3.0.3",
+>>>>>>> upstream/main
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2",
     "morgan": "^1.10.1",
     "zod": "^4.4.3"
+<<<<<<< HEAD
+=======
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+>>>>>>> upstream/main
   }
 }

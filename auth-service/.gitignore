@@ -1,2 +1,7 @@
 node_modules
+<<<<<<< HEAD
 .env
+=======
+.env
+logs
+>>>>>>> upstream/main

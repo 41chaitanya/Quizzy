@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+@theme {
+  --font-quera: "quera", sans-serif;
+  --font-poppins: "Poppins", sans-serif;
+}
+
+@font-face {
+  font-family: "quera";
+  src: url("/Quera-DEMO-BF68be80d1aceec.otf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+}

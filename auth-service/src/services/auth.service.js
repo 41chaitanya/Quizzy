@@ -77,7 +77,6 @@ export async function loginUser({ email, password }) {
   };
 }
 
-
 export async function logoutUser(refreshToken) {
   const user = await userModel.findOne({ refreshToken });
 

@@ -146,7 +146,7 @@ export async function loginController(req, res) {
   }
 }
 
-export async function getProfileController(req, res) {
+export async function getUserProfileController(req, res) {
   try {
     console.log(req.user);
     const userId = req.user.id;

@@ -16,6 +16,8 @@ export const generateAccessToken = (user) => {
   );
 };
 
+
+
 // Generate a refresh token for renewing user sessions
 export const generateRefreshToken = (user) => {
   return jwt.sign(

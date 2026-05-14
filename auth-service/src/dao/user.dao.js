@@ -11,7 +11,7 @@ export async function createUser(user) {
    const newUser = await userModel.create(user);
     return newUser;
 }
-
+// user fine  in the database
 export async function findUserById(id) {
     const userFatch = await userModel.findById(id).select("-password");
     return userFatch

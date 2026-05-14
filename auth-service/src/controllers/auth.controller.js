@@ -5,6 +5,8 @@ import {
   registerUser,
 } from "../services/auth.service.js";
 
+
+
 // Controller to handle user registration requests
 export async function registerController(req, res) {
   try {
@@ -150,9 +152,8 @@ export async function getUserProfileController(req, res) {
   try {
     console.log(req.user);
     const userId = req.user.id;
-    
-    const user = await getProfile(userId);
 
+    const user = await getProfile(userId);
     return res.status(200).json({
       success: true,
       user,
@@ -165,8 +166,6 @@ export async function getUserProfileController(req, res) {
     });
   }
 }
-
-
 
 export async function logoutController(req, res) {
   try {
@@ -199,4 +198,4 @@ export async function logoutController(req, res) {
       error: error.message,
     });
   }
-};
+}

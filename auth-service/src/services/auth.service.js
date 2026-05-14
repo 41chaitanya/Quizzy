@@ -45,6 +45,7 @@ export async function registerUser({ username, email, password }) {
   };
 }
 
+
 export async function loginUser({ email, password }) {
   const existingUser = await findUserByEmail(email);
 

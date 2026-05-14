@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import config from "../config.js";
 
+
 // Establish a connection to MongoDB using the URI from config
 const connectDB = async () => {
   try {

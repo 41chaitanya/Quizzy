@@ -1,4 +1,3 @@
-
 import { generateToken } from "../utils/genrateToken.js";
 import { comparePassword } from "../utils/comparedPassword.js";
 import { hashPassword } from "../utils/hashedPassword.js";
@@ -10,7 +9,9 @@ export const register = async (data) => {
   const existingUser = await userDAO.findUserByEmail(email);
 
   if (existingUser) {
-    throw new Error("User already exists");
+    const error = new Error("User already exists");
+    error.statusCode = 400;
+    throw error;
   }
 
   const hashedPassword = await hashPassword(password);
@@ -32,16 +33,20 @@ export const register = async (data) => {
 export const login = async (data) => {
   const { email, password } = data;
 
-  const user = await userDAO.findUserByEmail( email );
+  const user = await userDAO.findUserByEmail(email);
 
   if (!user) {
-    throw new Error("Invalid email");
+    const error = new Error("Invalid email");
+    error.statusCode = 404;
+    throw error;
   }
 
   const isMatch = await comparePassword(password, user.password);
 
   if (!isMatch) {
-    throw new Error("Invalid Password");
+    const error = new Error("Invalid Password");
+    error.statusCode = 404;
+    throw error;
   }
 
   const token = generateToken(user);
@@ -51,5 +56,3 @@ export const login = async (data) => {
     token,
   };
 };
-
-

@@ -1,7 +1,8 @@
 import { register, login } from "../services/auth.service.js";
+import asyncHandler from "../utils/async.handler.js";
 
 export const registerController = async (req, res) => {
-  try {
+  asyncHandler (async(req,res) {
     const result = await register(req.body);
 
     res.status(201).json({
@@ -9,16 +10,11 @@ export const registerController = async (req, res) => {
       message: "User register successfully",
       data: result,
     });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
+  }); 
 };
 
 export const loginController = async (req, res) => {
-  try {
+  asyncHandler (async(req,res) {
     const result = login(req.body);
 
     res.cookie("token", result.token, {
@@ -32,12 +28,7 @@ export const loginController = async (req, res) => {
       message: "User Login successfully",
       data: result.user,
     });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
+  });
 };
 
 export const logoutController = (

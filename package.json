@@ -19,5 +19,15 @@
   "bugs": {
     "url": "https://github.com/shubdev/Quizzy/issues"
   },
-  "homepage": "https://github.com/shubdev/Quizzy#readme"
+  "homepage": "https://github.com/shubdev/Quizzy#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.6.2"
+  }
 }

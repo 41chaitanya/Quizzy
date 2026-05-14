@@ -36,7 +36,7 @@ export const loginService = async (data) => {
 
     const user = await findUserByEmail(email);
 
-    if (!user) {
+    if (!user || !password) {
         throw new Error("Invalid email or password");
     };
 

@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req, res, next) => {
     try {
+        console.log("headers" , req.headers);
         const authHeader = req.headers.authHeader;
 
         // Check if the Authorization header is present

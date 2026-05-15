@@ -1,6 +1,6 @@
 import batchModel from "../models/batch.model.js";
 
-export async function createBatch(data) {
+export async function create(data) {
   try {
     return await batchModel.create(data);
   } catch (error) {
@@ -8,7 +8,7 @@ export async function createBatch(data) {
   }
 }
 
-export async function findBatchById(id) {
+export async function findById(id) {
   try {
     return await batchModel.findOne({
       _id: id,
@@ -19,7 +19,7 @@ export async function findBatchById(id) {
   }
 }
 
-export async function findBatchByName(name) {
+export async function findByName(name) {
   try {
     return await batchModel.findOne({
       name,
@@ -30,7 +30,17 @@ export async function findBatchByName(name) {
   }
 }
 
-export async function updateBatch(id, data) {
+export async function findAll() {
+  try {
+    return await batchModel.find({
+      isDeleted: false,
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateById(id, data) {
   try {
     return await batchModel.findOneAndUpdate(
       {
@@ -48,7 +58,7 @@ export async function updateBatch(id, data) {
   }
 }
 
-export async function deleteBatch(id) {
+export async function softDelete(id) {
   try {
     return await batchModel.findOneAndUpdate(
       {
@@ -62,16 +72,6 @@ export async function deleteBatch(id) {
         new: true,
       },
     );
-  } catch (error) {
-    throw error;
-  }
-}
-
-export async function findAllBatches() {
-  try {
-    return await batchModel.find({
-      isDeleted: false,
-    });
   } catch (error) {
     throw error;
   }

@@ -5,6 +5,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    username: {
+        type: String,
+        trim: true,
+        sparse: true
+    },
     email: {
         type: String,
         required: true,
@@ -20,6 +25,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ['admin', 'user'],
         default: 'user'
+    },
+    refreshToken: {
+        type: String,
+        default: null,
+        select: false
     }
 }, {
     timestamps: true

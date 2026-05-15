@@ -3,6 +3,6 @@ import AuthRoutes from './auth.route.js';
 
 const IndexRoutes = Router();
 
-IndexRoutes.use('/v1/auth', AuthRoutes);
+IndexRoutes.use('/auth', AuthRoutes);
 
 export default IndexRoutes;

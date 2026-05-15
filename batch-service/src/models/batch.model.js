@@ -1,29 +1,29 @@
 import mongoose from "mongoose";
 
 const batchSchema = new mongoose.Schema({
-    name: { 
-        type: String, 
-        required: true, 
+    name: {
+        type: String,
+        required: true,
         trim: true,
-        index: true 
+        index: true
     },
     description: { type: String, trim: true, default: "" },
-    maxCapacity: { 
-        type: Number, 
+    maxCapacity: {
+        type: Number,
         default: 0 // 0 represents unlimited. (could have used -1, null or undefined)
     },
-    currentStudentCount:{
+    currentStudentCount: {
         type: Number,
         default: 0
     },
-    status: { 
-        type: String, 
-        enum: ['active', 'inactive'], 
-        default: 'active' 
+    status: {
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active'
     },
     isDeleted: { type: Boolean, default: false, index: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
-}, { 
+}, {
     timestamps: true
 });
 

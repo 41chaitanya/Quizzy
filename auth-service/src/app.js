@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import IndexRoutes from './routes/index.route.js';
 import { globalErrorHandler } from './middlewares/error.middleware.js';
 
@@ -20,6 +21,9 @@ app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true
 }));
+
+// Cookie parsing middleware
+app.use(cookieParser());
 
 // Body parsing middleware
 app.use(express.json());

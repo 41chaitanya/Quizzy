@@ -6,6 +6,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 // import IndexRoutes from './routes/index.route.js';
 // import { globalErrorHandler } from './middlewares/error.middleware.js';
+import routes from './routes/index.route.js';
+import errorMiddleware from './middlewares/error.middleware.js';
+
 
 
 const app = express();
@@ -31,6 +34,8 @@ app.use(express.urlencoded({extended: true}));
 
 // Logging middleware
 app.use(morgan('dev'));
+app.use("/api",routes);
+app.use(errorMiddleware);
 
 app.get('/health', async (req, res) => {
   try {
@@ -52,6 +57,7 @@ app.get('/health', async (req, res) => {
 app.get('/', (req, res)=>{
     res.end('Server is running...')
 });
+
 
 
 

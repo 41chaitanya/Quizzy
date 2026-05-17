@@ -8,6 +8,14 @@ export async function create(data) {
   }
 }
 
+export async function createMany(data) {
+  try {
+    return await batchModel.insertMany(data);
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function findById(id) {
   try {
     return await batchModel.findOne({

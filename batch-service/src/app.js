@@ -4,8 +4,9 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import IndexRoutes from './routes/index.route.js';
-import { globalErrorHandler } from './middlewares/error.middleware.js';
+// import IndexRoutes from './routes/index.route.js';
+// import { globalErrorHandler } from './middlewares/error.middleware.js';
+import batchRoutes from './routes/batch.routes.js';
 
 
 const app = express();
@@ -53,8 +54,9 @@ app.get('/', (req, res)=>{
     res.end('Server is running...')
 });
 
-app.use('/api', IndexRoutes);
+// Routes
+app.use('/api/batches', batchRoutes);
 
-app.use(globalErrorHandler);
+// app.use(globalErrorHandler);
 
 export default app;

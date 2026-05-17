@@ -2,6 +2,7 @@ import CONFIG from "../configs/env.config.js";
 import { registerUser, loginUser, GetUser } from "../services/user.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { generateToken } from "../utils/jwt.js";
+import { successResponse, errorResponse } from "../utils/response.js";
 
 
 export const handleRegister = asyncHandler(async (req, res) => {
@@ -18,14 +19,10 @@ export const handleRegister = asyncHandler(async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
-        return res.status(201).json({
-            success: true,
-            message: 'User registered successfully',
-            user: {
-                id: user._id,
-                fullname: user.fullname,
-                email: user.email,
-            },
+        return successResponse(res, 'User registered successfully', {
+            id: user._id,
+            fullname: user.fullname,
+            email: user.email,
         });
 })
 
@@ -49,15 +46,10 @@ export const handleLogin = asyncHandler(async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
-        return res.status(200).json({
-            success: true,
-            message: 'Login successful',
-
-            user: {
-                id: user._id,
-                fullname: user.fullname,
-                email: user.email,
-            },
+        return successResponse(res, 'Login successful', {
+            id: user._id,
+            fullname: user.fullname,
+            email: user.email,
         });
 });
 
@@ -72,24 +64,15 @@ export const handleLogout = asyncHandler(async (req, res) => {
 
     res.clearCookie("token", cookieOptions);
 
-    return res.status(200).json({
-        success: true,
-        message: 'Logout successful',
-    });
+    return successResponse(res, 'Logout successful');
 });
 
 export const handleGetMe = asyncHandler(async (req, res) => {
         const user = await GetUser(req);
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found',
-            });
+            return errorResponse(res, 'User not found', 404);
         }
 
-        return res.status(200).json({
-            success: true,
-            user,
-        });
+        return successResponse(res, 'User fetched successfully', user);
 });

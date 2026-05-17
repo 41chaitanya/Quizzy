@@ -5,8 +5,9 @@ import compression from 'compression';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 // import IndexRoutes from './routes/index.route.js';
-// import { globalErrorHandler } from './middlewares/error.middleware.js';
+import { globalErrorHandler } from './middlewares/error.middleware.js';
 import batchRoutes from './routes/batch.routes.js';
+import CONFIG from '../../auth-service/src/configs/env.config.js';
 
 
 const app = express();
@@ -19,7 +20,7 @@ app.use(compression());
 
 // CORS configuration for frontend
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: CONFIG.FRONTEND_URL || 'http://localhost:5173',
     credentials: true
 }));
 
@@ -57,6 +58,6 @@ app.get('/', (req, res)=>{
 // Routes
 app.use('/api/batches', batchRoutes);
 
-// app.use(globalErrorHandler);
+app.use(globalErrorHandler);
 
 export default app;

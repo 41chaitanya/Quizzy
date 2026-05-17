@@ -1,20 +1,16 @@
 import { compareHash, generateHash } from "../utils/bcrypt.js"
-import * as UserRepo from '../repositories/user.repository.js'
-
+import * as UserRepo from '../repositories/user.repository.js';
+import ApiError from '../utils/ApiError.js';
 export const registerUser = async ({ fullname, email, password }) => {
     if (!fullname || !email || !password) {
-        throw new Error(
-            'All fields are required'
-        );
+        throw new ApiError(400, 'All fields are required');
     }
 
     const isExist =
         await UserRepo.findByEmail(email);
 
     if (isExist) {
-        throw new Error(
-            'User already exists, try login'
-        );
+        throw new ApiError(409, 'User already exists, try login');
     }
 
     const hashedPassword = await generateHash(password);
@@ -35,7 +31,7 @@ export const loginUser = async ({ email, password }) => {
         );
 
     if (!user) {
-        throw new Error('Invalid credentials');
+        throw new ApiError(401, 'Invalid credentials');
     }
 
     const isPasswordValid =
@@ -45,7 +41,7 @@ export const loginUser = async ({ email, password }) => {
         );
 
     if (!isPasswordValid) {
-        throw new Error('Invalid credentials');
+        throw new ApiError(401, 'Invalid credentials');
     }
 
     return user;

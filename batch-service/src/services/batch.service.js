@@ -51,7 +51,7 @@ const validateDuplicateBatchName = async (batchName, batchId = null) => {
 
 
 
-const createBatch = async (payload, userId) => {
+export const createBatch = async (payload, userId) => {
 
     const normalizedBatchName = normalizeBatchName(payload.name);
 
@@ -70,7 +70,7 @@ const createBatch = async (payload, userId) => {
 
 
 
-const getBatchById = async (batchId) => {
+export const getBatchById = async (batchId) => {
 
     const batch = await findExistingBatch(batchId);
 
@@ -79,7 +79,7 @@ const getBatchById = async (batchId) => {
 
 
 
-const getAllBatches = async () => {
+export const getAllBatches = async () => {
 
     const batches = await batchRepository.findAll();
 
@@ -88,7 +88,7 @@ const getAllBatches = async () => {
 
 
 
-const updateBatch = async (batchId, payload) => {
+export const updateBatch = async (batchId, payload) => {
 
     await findExistingBatch(batchId);
 
@@ -110,7 +110,7 @@ const updateBatch = async (batchId, payload) => {
 
 
 
-const deleteBatch = async (batchId) => {
+export const deleteBatch = async (batchId) => {
 
     await findExistingBatch(batchId);
 
@@ -129,20 +129,32 @@ const deleteBatch = async (batchId) => {
     };
 };
 
+export const addStudentToBatch = async (batchId, studentId) => {
+    await findExistingBatch(batchId);
 
+    const existing = await enrollmentRepository.findByBatchAndUser(batchId, studentId);
+    if (existing) {
+        throw new ApiError(409, 'Student already enrolled in this batch');
+    }
 
-export {
-    createBatch,
-    getBatchById,
-    getAllBatches,
-    updateBatch,
-    deleteBatch
+    const enrollment = await enrollmentRepository.create({ batchId, userId: studentId });
+    return enrollment;
 };
 
-export default {
-    createBatch,
-    getBatchById,
-    getAllBatches,
-    updateBatch,
-    deleteBatch
+export const removeStudentFromBatch = async (batchId, studentId) => {
+    await findExistingBatch(batchId);
+
+    const enrollment = await enrollmentRepository.removeStudent(batchId, studentId);
+
+    if (!enrollment) {
+        throw new ApiError(404, 'Student not found in this batch');
+    }
+
+    return enrollment;
+};
+
+export const getStudentsInBatch = async (batchId) => {
+    await findExistingBatch(batchId);
+    const students = await enrollmentRepository.findAllByBatch(batchId);
+    return students;
 };

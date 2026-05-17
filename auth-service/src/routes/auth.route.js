@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { handleGetMe, handleLogin, handleLogout, handleRegister } from '../controllers/auth.controller.js';
-import { LoginSchema, RegisterSchema } from '../validators/zod.validator.js';
-import { validate } from '../middlewares/zod.middleware.js';
+import { LoginSchema, RegisterSchema } from '../validators/auth.validation.js';
+import { validate } from '../middlewares/validate.middleware.js';
 import { isAuthenticated } from '../middlewares/auth.middleware.js';
 
 const AuthRoutes = Router();

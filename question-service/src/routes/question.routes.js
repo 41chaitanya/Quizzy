@@ -40,7 +40,7 @@ router.post(
 router.get(
   "/:id",
   isAuthenticated,
-  authorize("admin", "teacher", "student"),
+  authorize("admin", "teacher", "user"),
   getQuestionByIdController
 );
 

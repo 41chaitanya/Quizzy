@@ -2,6 +2,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import { createBatch, getAllBatches, getBatchById, updateBatch, deleteBatch } from '../services/batch.service.js';
 import * as enrollmentRepository from '../repositories/enrollment.repository.js';
 import ApiError from '../utils/ApiError.js';
+import mongoose from 'mongoose';
 
 export const handleCreateBatch = asyncHandler(async (req, res) => {
     const { name, description, maxCapacity, status } = req.body;

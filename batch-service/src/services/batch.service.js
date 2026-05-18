@@ -23,7 +23,7 @@ const findExistingBatch = async (batchId) => {
 
     validateBatchId(batchId);
 
-    const batch = await batchRepository.findById(batchId);
+    const batch = await batchRepository.findById(new mongoose.Types.ObjectId(batchId));
 
     if (!batch) {
         throw new ApiError(
@@ -60,7 +60,7 @@ const createBatch = async (payload, userId) => {
     const batchPayload = {
         ...payload,
         name: normalizedBatchName,
-        createdBy: userId
+        createdBy:new mongoose.Types.ObjectId(userId) //Here need to change userId by Mongoose objectId formate 
     };
 
     const batch = await batchRepository.create(batchPayload);

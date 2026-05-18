@@ -1,0 +1,364 @@
+{
+  "info": {
+    "name": "Batch Service APIs",
+    "description": "Production-level Postman collection for /api/batches endpoints.",
+    "_postman_id": "batch-service-collection-v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base url", "value": "http://localhost:5001", "type": "string" },
+    { "key": "batchId", "value": "", "type": "string" },
+    { "key": "createdBy", "value": "6a0b56443b93354eb0c472af", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. POST /api/batches — Create Batch",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// ─── Status ───────────────────────────────────────────────",
+              "pm.test('Status is 201 Created', () => {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response time under 500ms', () => {",
+              "  pm.expect(pm.response.responseTime).to.be.below(500);",
+              "});",
+              "",
+              "// ─── Headers ─────────────────────────────────────────────",
+              "pm.test('Content-Type is application/json', () => {",
+              "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+              "});",
+              "",
+              "// ─── Body Schema ─────────────────────────────────────────",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('Response has _id field', () => {",
+              "  pm.expect(res).to.have.property('_id');",
+              "  pm.expect(res._id).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "pm.test('Name matches what was sent', () => {",
+              "  pm.expect(res.name).to.equal('Cohort 99.999');",
+              "});",
+              "",
+              "pm.test('maxCapacity is correct', () => {",
+              "  pm.expect(res.maxCapacity).to.equal(30);",
+              "});",
+              "",
+              "pm.test('createdBy matches userId', () => {",
+              "  const userId = pm.collectionVariables.get('createdBy');",
+              "  pm.expect(res.createdBy).to.equal(userId);",
+              "});",
+              "",
+              "pm.test('createdAt is a valid date', () => {",
+              "  pm.expect(new Date(res.createdAt).toString()).to.not.equal('Invalid Date');",
+              "});",
+              "",
+              "// ─── Save batchId for next requests ──────────────────────",
+              "pm.collectionVariables.set('batchId', res._id);",
+              "console.log('✅ Batch created, ID saved:', res._id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cohort 99.999\",\n  \"description\": \"This batch help you impossible acchivement goal and dream wish completed.\",\n  \"maxCapacity\": 30,\n  \"createdBy\": \"{{createdBy}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base url}}/api/batches",
+          "host": ["{{base url}}"],
+          "path": ["api", "batches"]
+        }
+      }
+    },
+    {
+      "name": "2. GET /api/batches — Get All Batches",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200 OK', () => {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response time under 800ms', () => {",
+              "  pm.expect(pm.response.responseTime).to.be.below(800);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('Response is an array', () => {",
+              "  pm.expect(Array.isArray(res)).to.be.true;",
+              "});",
+              "",
+              "pm.test('Array is not empty', () => {",
+              "  pm.expect(res.length).to.be.greaterThan(0);",
+              "});",
+              "",
+              "pm.test('Each batch has _id, name, maxCapacity', () => {",
+              "  res.forEach((batch, i) => {",
+              "    pm.expect(batch, `batch[${i}]`).to.have.property('_id');",
+              "    pm.expect(batch, `batch[${i}]`).to.have.property('name');",
+              "    pm.expect(batch, `batch[${i}]`).to.have.property('maxCapacity');",
+              "  });",
+              "});",
+              "",
+              "pm.test('Created batch appears in list', () => {",
+              "  const savedId = pm.collectionVariables.get('batchId');",
+              "  const found = res.some(b => b._id === savedId);",
+              "  pm.expect(found).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base url}}/api/batches",
+          "host": ["{{base url}}"],
+          "path": ["api", "batches"]
+        }
+      }
+    },
+    {
+      "name": "3. GET /api/batches/:id — Get Batch by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200 OK', () => {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response time under 300ms', () => {",
+              "  pm.expect(pm.response.responseTime).to.be.below(300);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "const savedId = pm.collectionVariables.get('batchId');",
+              "",
+              "pm.test('Returned _id matches requested ID', () => {",
+              "  pm.expect(res._id).to.equal(savedId);",
+              "});",
+              "",
+              "pm.test('Has all expected fields', () => {",
+              "  ['_id', 'name', 'description', 'maxCapacity', 'createdBy', 'createdAt'].forEach(field => {",
+              "    pm.expect(res, field).to.have.property(field);",
+              "  });",
+              "});",
+              "",
+              "pm.test('maxCapacity is a number', () => {",
+              "  pm.expect(res.maxCapacity).to.be.a('number');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base url}}/api/batches/{{batchId}}",
+          "host": ["{{base url}}"],
+          "path": ["api", "batches", "{{batchId}}"]
+        }
+      }
+    },
+    {
+      "name": "4. PUT /api/batches/:id — Update Batch",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200 OK', () => {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('Name was updated', () => {",
+              "  pm.expect(res.name).to.equal('Cohort 99.999 - Updated');",
+              "});",
+              "",
+              "pm.test('maxCapacity was updated', () => {",
+              "  pm.expect(res.maxCapacity).to.equal(50);",
+              "});",
+              "",
+              "pm.test('_id is unchanged', () => {",
+              "  pm.expect(res._id).to.equal(pm.collectionVariables.get('batchId'));",
+              "});",
+              "",
+              "pm.test('updatedAt is set', () => {",
+              "  pm.expect(res).to.have.property('updatedAt');",
+              "  pm.expect(new Date(res.updatedAt).toString()).to.not.equal('Invalid Date');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cohort 99.999 - Updated\",\n  \"description\": \"Updated description via Postman.\",\n  \"maxCapacity\": 50\n}"
+        },
+        "url": {
+          "raw": "{{base url}}/api/batches/{{batchId}}",
+          "host": ["{{base url}}"],
+          "path": ["api", "batches", "{{batchId}}"]
+        }
+      }
+    },
+    {
+      "name": "5. DELETE /api/batches/:id — Delete Batch",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200 or 204', () => {",
+              "  pm.expect([200, 204]).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test('Response time under 300ms', () => {",
+              "  pm.expect(pm.response.responseTime).to.be.below(300);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "  const res = pm.response.json();",
+              "  pm.test('Success message present', () => {",
+              "    const hasMsg = res.message || res.deleted || res.success;",
+              "    pm.expect(hasMsg).to.exist;",
+              "  });",
+              "}",
+              "",
+              "// ─── Verify actually deleted ──────────────────────────────",
+              "const savedId = pm.collectionVariables.get('batchId');",
+              "const baseUrl = pm.collectionVariables.get('base url');",
+              "",
+              "pm.sendRequest({",
+              "  url: `${baseUrl}/api/batches/${savedId}`,",
+              "  method: 'GET'",
+              "}, (err, res) => {",
+              "  pm.test('Deleted batch returns 404', () => {",
+              "    pm.expect(res.code).to.equal(404);",
+              "  });",
+              "});",
+              "",
+              "pm.collectionVariables.unset('batchId');",
+              "console.log('✅ Batch deleted successfully');"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base url}}/api/batches/{{batchId}}",
+          "host": ["{{base url}}"],
+          "path": ["api", "batches", "{{batchId}}"]
+        }
+      }
+    },
+    {
+      "name": "── EDGE CASES ──",
+      "item": [
+        {
+          "name": "GET invalid ID → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404 Not Found', () => { pm.response.to.have.status(404); });",
+                  "const res = pm.response.json();",
+                  "pm.test('Error message present', () => { pm.expect(res).to.have.property('message'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base url}}/api/batches/000000000000000000000000",
+              "host": ["{{base url}}"],
+              "path": ["api", "batches", "000000000000000000000000"]
+            }
+          }
+        },
+        {
+          "name": "POST missing required fields → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', () => { pm.response.to.have.status(400); });",
+                  "const res = pm.response.json();",
+                  "pm.test('Validation error message present', () => { pm.expect(res).to.have.property('message'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": {
+              "raw": "{{base url}}/api/batches",
+              "host": ["{{base url}}"],
+              "path": ["api", "batches"]
+            }
+          }
+        },
+        {
+          "name": "POST invalid createdBy (bad ObjectId) → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', () => { pm.response.to.have.status(400); });",
+                  "const res = pm.response.json();",
+                  "pm.test('Error message present', () => { pm.expect(res).to.have.property('message'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bad Batch\",\n  \"description\": \"Testing bad userId\",\n  \"maxCapacity\": 10,\n  \"createdBy\": \"INVALID_ID\"\n}"
+            },
+            "url": {
+              "raw": "{{base url}}/api/batches",
+              "host": ["{{base url}}"],
+              "path": ["api", "batches"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

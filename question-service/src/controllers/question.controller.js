@@ -5,13 +5,13 @@ import { successResponse } from "../utils/response.js";
 export const createQuestionController = asyncHandler(async (req, res) => {
   const payload = { ...req.body, createdBy: req.user.id };
   const question = await QuestionService.createQuestion(payload);
-  return successResponse(res, "Question created successfully", question);
+  return successResponse(res, "Question created successfully", question, 201);
 });
 
 export const bulkCreateQuestionsController = asyncHandler(async (req, res) => {
   const payload = req.body.map(q => ({ ...q, createdBy: req.user.id }));
   const result = await QuestionService.bulkCreateQuestions(payload);
-  return successResponse(res, "Questions created successfully", result);
+  return successResponse(res, "Questions created successfully", result, 201);
 });
 
 export const getQuestionByIdController = asyncHandler(async (req, res) => {

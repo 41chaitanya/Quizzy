@@ -76,7 +76,11 @@ export const createMany = async (questions) => {
 };
 
 export const findById = async (id) => {
-  return await QuestionModel.findById(id);
+  return await QuestionModel.findOne({
+    _id: id,
+    isActive: true,
+    isDeleted: false,
+  });
 };
 
 export const findAll = async (filter, options) => {
@@ -90,18 +94,53 @@ export const findAll = async (filter, options) => {
   const skip = (Number(page) - 1) * Number(limit);
   const sortOrder = order === "asc" ? 1 : -1;
 
-  return await QuestionModel.find(filter)
+  const finalFilter = {
+    ...filter,
+    isDeleted: false,
+  };
+
+  if (finalFilter.isActive === undefined) {
+    finalFilter.isActive = true;
+  }
+
+  return await QuestionModel.find(finalFilter)
     .sort({ [sortBy]: sortOrder })
     .skip(skip)
     .limit(Number(limit));
 };
 
 export const countDocuments = async (filter) => {
-  return await QuestionModel.countDocuments(filter);
+  const finalFilter = {
+    ...filter,
+    isDeleted: false,
+  };
+
+  if (finalFilter.isActive === undefined) {
+    finalFilter.isActive = true;
+  }
+
+  return await QuestionModel.countDocuments(finalFilter);
 };
 
 export const updateById = async (id, data) => {
   return await QuestionModel.findByIdAndUpdate(
+    id,
+    { $set: data },
+    { new: true, runValidators: true }
+  );
+};
+
+export const deleteById = async (id) => {
+  return await QuestionModel.findOneAndUpdate(
+    {
+      _id: id,
+      isActive: true,
+      isDeleted: false,
+    },
+    { isActive: false, isDeleted: true },
+    { new: true }
+  );
+};
     id,
     { $set: data },
     { new: true, runValidators: true }

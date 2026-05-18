@@ -4,10 +4,9 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-// import IndexRoutes from './routes/index.route.js';
 import { globalErrorHandler } from './middlewares/error.middleware.js';
 import batchRoutes from './routes/batch.routes.js';
-import CONFIG from '../../auth-service/src/configs/env.config.js';
+import CONFIG from './configs/env.config.js';
 
 
 const app = express();

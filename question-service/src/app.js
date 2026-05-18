@@ -56,6 +56,13 @@ app.get('/', (req, res)=>{
 
 app.use('/api', IndexRoutes);
 
+app.use((req, res) => {
+  return res.status(404).json({
+    success: false,
+    message: 'Route not found',
+  });
+});
+
 app.use(globalErrorHandler);
 
 export default app;

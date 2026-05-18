@@ -14,6 +14,12 @@ const validateBatchId = (batchId) => {
     }
 };
 
+const validateStudentId = (studentId) => {
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+        throw new ApiError(400, "Invalid student ID");
+    }
+};
+
 const normalizeBatchName = (name = "") => {
     return name.trim().toLowerCase();
 };
@@ -60,6 +66,8 @@ export const createBatch = async (payload, userId) => {
     const batchPayload = {
         ...payload,
         name: normalizedBatchName,
+        description: payload.description?.trim() || "",
+        maxCapacity: payload.maxCapacity ?? 0,
         createdBy: userId
     };
 
@@ -101,6 +109,14 @@ export const updateBatch = async (batchId, payload) => {
         await validateDuplicateBatchName(normalizedBatchName, batchId);
 
         updatePayload.name = normalizedBatchName;
+    }
+
+    if (payload.description !== undefined) {
+        updatePayload.description = payload.description?.trim() || "";
+    }
+
+    if (payload.maxCapacity !== undefined) {
+        updatePayload.maxCapacity = payload.maxCapacity;
     }
 
     const updatedBatch = await batchRepository.updateById(batchId, updatePayload);
@@ -163,10 +179,16 @@ export const bulkCreateBatches = async (batches, userId) => {
 
 export const addStudentToBatch = async (batchId, studentId) => {
     await findExistingBatch(batchId);
+    validateStudentId(studentId);
 
     const existing = await enrollmentRepository.findByBatchAndUser(batchId, studentId);
     if (existing) {
         throw new ApiError(409, 'Student already enrolled in this batch');
+    }
+
+    const inactiveEnrollment = await enrollmentRepository.findAnyByBatchAndUser(batchId, studentId);
+    if (inactiveEnrollment) {
+        return await enrollmentRepository.reactivateStudent(batchId, studentId);
     }
 
     const enrollment = await enrollmentRepository.create({ batchId, userId: studentId });
@@ -175,6 +197,7 @@ export const addStudentToBatch = async (batchId, studentId) => {
 
 export const removeStudentFromBatch = async (batchId, studentId) => {
     await findExistingBatch(batchId);
+    validateStudentId(studentId);
 
     const enrollment = await enrollmentRepository.removeStudent(batchId, studentId);
 

@@ -6,4 +6,4 @@ export const globalErrorHandler = (err, req, res, next) => {
         message: err.message || 'Internal Server Error',
         ...(err.errors ? { errors: err.errors } : {}),
     });
-}
+};

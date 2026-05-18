@@ -1,20 +1,3 @@
-<<<<<<< HEAD
-import express from "express"
-import morgan from "morgan"
-import cookieParser from "cookie-parser"
-import authRouter from "./routes/auth.routes.js"
-
-const app = express()
-
-app.use(express.json())
-app.use(morgan("dev"))
-app.use(cookieParser())
-
-
-app.use("/api/auth", authRouter)
-
-export default app
-=======
 import express from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -76,4 +59,3 @@ app.use('/api', IndexRoutes);
 app.use(globalErrorHandler);
 
 export default app;
->>>>>>> dfb84492e962b8ae0649259916816f10d60ad178

@@ -1,6 +1,7 @@
-import { verifyToken } from "../utils/jwt.js";
+import jwt from 'jsonwebtoken';
+import CONFIG from '../configs/env.config.js';
 
-export const isAuthenticated = async (req, res, next) => {
+export const isAuthenticated = (req, res, next) => {
     try {
         const bearerToken = req.headers.authorization?.startsWith('Bearer ')
             ? req.headers.authorization.split(' ')[1]
@@ -10,21 +11,16 @@ export const isAuthenticated = async (req, res, next) => {
         if (!token) {
             return res.status(401).json({
                 success: false,
-                message: "Unauthorized",
+                message: 'Unauthorized',
             });
         }
 
-        const decoded = verifyToken(token);
-
-        req.user = decoded;
-
-        next();
-
+        req.user = jwt.verify(token, CONFIG.JWT_SECRET);
+        return next();
     } catch (error) {
         return res.status(401).json({
             success: false,
             message: 'Invalid or expired token',
-            error: error.message
         });
     }
 };

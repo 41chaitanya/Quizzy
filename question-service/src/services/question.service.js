@@ -1,6 +1,13 @@
+import mongoose from "mongoose";
 import * as QuestionRepo from "../repositories/question.repository.js";
 import { CreateQuestionSchema } from "../validators/question.validation.js";
 import ApiError from "../utils/ApiError.js";
+
+const validateQuestionId = (id) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, "Invalid question ID");
+  }
+};
 
 
 export const createQuestion = async (payload) => {
@@ -40,6 +47,10 @@ export const bulkCreateQuestions = async (questions) => {
       ? await QuestionRepo.createMany(valid)
       : [];
 
+  if (inserted.length === 0) {
+    throw new ApiError(400, "No valid questions to create", failed);
+  }
+
   return {
     success: failed.length === 0,
     inserted,
@@ -49,6 +60,7 @@ export const bulkCreateQuestions = async (questions) => {
 
 export const getQuestionById = async (id) => {
   if (!id) throw new ApiError(400, "ID required");
+  validateQuestionId(id);
 
   const question = await QuestionRepo.findById(id);
   if (!question) throw new ApiError(404, "Not found");
@@ -73,7 +85,9 @@ export const listQuestions = async (query) => {
   if (query.topic) filter.topic = query.topic.trim();
   if (query.type) filter.type = query.type;
   if (query.difficulty) filter.difficulty = query.difficulty;
-  if (query.isActive !== undefined) filter.isActive = query.isActive;
+  if (query.isActive !== undefined) {
+    filter.isActive = query.isActive === 'true' || query.isActive === true;
+  }
 
   const options = {
     page: Number(query.page || 1),
@@ -99,6 +113,7 @@ export const listQuestions = async (query) => {
 };
 
 export const updateQuestion = async (id, payload) => {
+  validateQuestionId(id);
   const existing = await QuestionRepo.findById(id);
   if (!existing) throw new ApiError(404, "Not found");
 
@@ -122,6 +137,7 @@ export const updateQuestion = async (id, payload) => {
 };
 
 export const deleteQuestion = async (id) => {
+  validateQuestionId(id);
   const existing = await QuestionRepo.findById(id);
   if (!existing) throw new ApiError(404, "Not found");
   if (!existing.isActive) throw new ApiError(400, "Already inactive");

@@ -10,7 +10,10 @@ export const handleRegister = asyncHandler(async (req, res) => {
 
         const user = await registerUser({ fullname, email, password });
 
-        const token = generateToken({ id: user._id });
+        const token = generateToken({
+            id: user._id,
+            role: user.role,
+        });
 
         res.cookie("token", token, {
             httpOnly: true,
@@ -23,7 +26,8 @@ export const handleRegister = asyncHandler(async (req, res) => {
             id: user._id,
             fullname: user.fullname,
             email: user.email,
-        });
+            role: user.role,
+        }, 201);
 })
 
 export const handleLogin = asyncHandler(async (req, res) => {
@@ -37,6 +41,7 @@ export const handleLogin = asyncHandler(async (req, res) => {
 
         const token = generateToken({
             id: user._id,
+            role: user.role,
         });
 
         res.cookie("token", token, {
@@ -50,6 +55,7 @@ export const handleLogin = asyncHandler(async (req, res) => {
             id: user._id,
             fullname: user.fullname,
             email: user.email,
+            role: user.role,
         });
 });
 

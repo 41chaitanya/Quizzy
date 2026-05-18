@@ -3,16 +3,9 @@ import * as BatchService from '../services/batch.service.js';
 import { successResponse } from '../utils/response.js';
 
 export const handleCreateBatch = asyncHandler(async (req, res) => {
-    const { name, description, maxCapacity, status } = req.body;
+    const batch = await BatchService.createBatch(req.body, req.user.id);
 
-    const batch = await BatchService.createBatch({
-        name,
-        description,
-        maxCapacity,
-        status,
-    }, req.user?._id);
-
-    return successResponse(res, "Batch created successfully", batch);
+    return successResponse(res, "Batch created successfully", batch, 201);
 });
 
 export const handleGetAllBatches = asyncHandler(async (req, res) => {
@@ -28,14 +21,7 @@ export const handleGetBatchById = asyncHandler(async (req, res) => {
 
 export const handleUpdateBatch = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { name, description, maxCapacity, status } = req.body; 
-
-    const batch = await BatchService.updateBatch(id, {
-        name,
-        description,
-        maxCapacity,
-        status,
-    });
+    const batch = await BatchService.updateBatch(id, req.body);
 
     return successResponse(res, "Batch updated successfully", batch);
 });
@@ -52,7 +38,7 @@ export const handleAddStudent = asyncHandler(async (req, res) => {
 
     const enrollment = await BatchService.addStudentToBatch(batchId, studentId);
 
-    return successResponse(res, "Student added successfully", enrollment);
+    return successResponse(res, "Student added successfully", enrollment, 201);
 });
 
 export const handleRemoveStudent = asyncHandler(async (req, res) => {

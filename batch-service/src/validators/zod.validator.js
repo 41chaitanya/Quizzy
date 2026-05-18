@@ -21,28 +21,18 @@ const BatchBaseSchema = z.object({
     })
     .optional(),
 
-  startDate: z.coerce.date({
-    required_error: 'Start date is required',
-  }),
-
-  endDate: z.coerce.date({
-    required_error: 'End date is required',
-  }),
+  maxCapacity: z
+    .coerce.number()
+    .int({ message: 'Max capacity must be a whole number' })
+    .min(0, { message: 'Max capacity cannot be negative' })
+    .optional(),
 
   status: z
     .enum(['active', 'inactive'])
-    .default('active'),
+    .optional(),
 });
 
-export const CreateBatchSchema =
-  BatchBaseSchema.refine(
-    (data) => data.endDate > data.startDate,
-    {
-      message:
-        'End date must be after start date',
-      path: ['endDate'],
-    }
-  );
+export const CreateBatchSchema = BatchBaseSchema;
 
 export const UpdateBatchSchema =
   BatchBaseSchema.partial();
